@@ -1,11 +1,4 @@
-## How to start
+# Diplodoc file extension
 
-```bash
-# Clone this repo to new folder
-git clone git@github.com:diplodoc-platform/package-template.git new-package
-cd new-package
-
-# Init repo with new package name
-./init.sh new-package
-```
+[![NPM version](https://img.shields.io/npm/v/@diplodoc/file-extension.svg?style=flat)](https://www.npmjs.org/package/@diplodoc/file-extension)
 

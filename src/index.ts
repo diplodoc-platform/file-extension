@@ -1,1 +1,1 @@
-console.log(window.someProp);
+export const test = 'test';
