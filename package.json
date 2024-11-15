@@ -2,8 +2,22 @@
   "name": "@diplodoc/file-extension",
   "version": "0.0.0",
   "description": "Template package for Diplodoc platform development",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "build/plugin/index.js",
+  "types": "build/plugin/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/plugin/index.d.ts",
+      "node": "./build/plugin/index-node.js",
+      "default": "./build/plugin/index.js"
+    },
+    "./runtime": {
+      "types": "./build/runtime/index.d.ts",
+      "style": "./build/runtime/index.css",
+      "default": "./build/runtime/index.js"
+    },
+    "./runtime/styles": "./build/runtime/index.css",
+    "./runtime/styles.css": "./build/runtime/index.css"
+  },
   "homepage": "https://diplodoc.com/",
   "repository": {
     "type": "git",
@@ -15,6 +29,9 @@
   "private": true,
   "author": "",
   "license": "MIT",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "build": "run-p build:*",
     "build:js": "./esbuild/build.mjs",
@@ -28,8 +45,14 @@
   "devDependencies": {
     "@diplodoc/lint": "^1.2.0",
     "@diplodoc/tsconfig": "^1.0.2",
+    "@types/markdown-it": "^13.0.9",
+    "@types/node": "^18.19.64",
     "esbuild": "^0.24.0",
+    "esbuild-sass-plugin": "^3.3.1",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.6.3"
+  },
+  "peerDependencies": {
+    "markdown-it": "^13.0.0"
   }
 }
