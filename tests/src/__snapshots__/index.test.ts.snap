@@ -1,5 +1,128 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`File extension - plugin Options: directiveSyntax should render both file markups 1`] = `
+"<p><a href="../file" download="file.txt" class="yfm-file"><span class="yfm-file__icon"></span>file.txt</a></p>
+<p><a class="yfm-file" href="path/to/video" download="video.mp4"><span class="yfm-file__icon"></span>video.mp4</a></p>
+"
+`;
+
+exports[`File extension - plugin Options: directiveSyntax should render only new (directive) file markup 1`] = `
+"<p>{% file src="../file" name="file.txt" %}</p>
+<p><a class="yfm-file" href="path/to/video" download="video.mp4"><span class="yfm-file__icon"></span>video.mp4</a></p>
+"
+`;
+
+exports[`File extension - plugin Options: directiveSyntax should render only old file markup 1`] = `
+"<p><a href="../file" download="file.txt" class="yfm-file"><span class="yfm-file__icon"></span>file.txt</a></p>
+<p>:file<a href="path/to/video">video.mp4</a></p>
+"
+`;
+
+exports[`File extension - plugin dyrective syntax should add allowed attrs 1`] = `
+"<p><a class="yfm-file" href="../readme" download="readme.md" referrerpolicy="origin" rel="external" target="_blank" type="text/plain" hreflang="en"><span class="yfm-file__icon"></span>readme.md</a></p>
+"
+`;
+
+exports[`File extension - plugin dyrective syntax should generate file token 1`] = `
+[
+  Token {
+    "attrs": null,
+    "block": true,
+    "children": null,
+    "content": "",
+    "hidden": false,
+    "info": "",
+    "level": 0,
+    "map": [
+      0,
+      1,
+    ],
+    "markup": "",
+    "meta": null,
+    "nesting": 1,
+    "tag": "p",
+    "type": "paragraph_open",
+  },
+  Token {
+    "attrs": null,
+    "block": true,
+    "children": [
+      Token {
+        "attrs": [
+          [
+            "class",
+            "yfm-file",
+          ],
+          [
+            "href",
+            "path/to/video",
+          ],
+          [
+            "download",
+            "video.mp4",
+          ],
+        ],
+        "block": false,
+        "children": null,
+        "content": "video.mp4",
+        "hidden": false,
+        "info": "",
+        "level": 0,
+        "map": null,
+        "markup": ":file",
+        "meta": null,
+        "nesting": 0,
+        "tag": "",
+        "type": "yfm_file",
+      },
+    ],
+    "content": ":file[video.mp4](path/to/video)",
+    "hidden": false,
+    "info": "",
+    "level": 1,
+    "map": [
+      0,
+      1,
+    ],
+    "markup": "",
+    "meta": null,
+    "nesting": 0,
+    "tag": "",
+    "type": "inline",
+  },
+  Token {
+    "attrs": null,
+    "block": true,
+    "children": null,
+    "content": "",
+    "hidden": false,
+    "info": "",
+    "level": 0,
+    "map": null,
+    "markup": "",
+    "meta": null,
+    "nesting": -1,
+    "tag": "p",
+    "type": "paragraph_close",
+  },
+]
+`;
+
+exports[`File extension - plugin dyrective syntax should not add attrs not from whitelist 1`] = `
+"<p><a class="yfm-file" href="a.md" download="a.md"><span class="yfm-file__icon"></span>a.md</a></p>
+"
+`;
+
+exports[`File extension - plugin dyrective syntax should render file directive 1`] = `
+"<p><a class="yfm-file" href="path/to/video" download="video.mp4"><span class="yfm-file__icon"></span>video.mp4</a></p>
+"
+`;
+
+exports[`File extension - plugin dyrective syntax should render file inside text 1`] = `
+"<p>before<a class="yfm-file" href="../../docs/readme.md" download="file.txt"><span class="yfm-file__icon"></span>file.txt</a>after</p>
+"
+`;
+
 exports[`File extension - plugin should add extra attrs 1`] = `
 "<p><a href="../file" download="file.txt" class="yfm-file" data-yfm-file="yes"><span class="yfm-file__icon"></span>file.txt</a></p>
 "
