@@ -1,5 +1,3 @@
-import type MarkdownIt from 'markdown-it';
-
 import {
     ENV_FLAG_NAME,
     FILE_TOKEN,
@@ -12,12 +10,15 @@ import {
     REQUIRED_ATTRS,
     RULE_NAME,
 } from './const';
+import {fileRenderer} from './renderer';
 
 export type FileOptions = {
     fileExtraAttrs?: [string, string][];
 };
 
-export const filePlugin: MarkdownIt.PluginWithOptions<FileOptions> = (md, opts) => {
+export const filePlugin: markdownit.PluginWithOptions<FileOptions> = (md, opts) => {
+    fileRenderer(md);
+
     md.inline.ruler.push(RULE_NAME, (state, silent) => {
         if (state.src.substring(state.pos, state.pos + PREFIX_LENGTH) !== PREFIX) {
             return false;
@@ -82,10 +83,4 @@ export const filePlugin: MarkdownIt.PluginWithOptions<FileOptions> = (md, opts) 
 
         return true;
     });
-
-    md.renderer.rules[FILE_TOKEN] = (tokens, idx, _opts, _env, self) => {
-        const token = tokens[idx];
-        const iconHtml = `<span class="${md.utils.escapeHtml(FileClassName.Icon)}"></span>`;
-        return `<a${self.renderAttrs(token)}>${iconHtml}${md.utils.escapeHtml(token.content)}</a>`;
-    };
 };
