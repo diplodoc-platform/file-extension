@@ -1,5 +1,6 @@
 import MarkdownIt from 'markdown-it';
 import transform from '@diplodoc/transform';
+import dd from 'ts-dedent';
 
 import {type TransformOptions, transform as fileTransformer} from '../../src/plugin';
 
@@ -7,8 +8,8 @@ function html(markup: string, opts?: TransformOptions) {
     return transform(markup, {
         // override the default markdown-it-attrs delimiters,
         // to make it easier to check html for non-valid file markup
-        leftDelimiter: '[',
-        rightDelimiter: ']',
+        leftDelimiter: '[[',
+        rightDelimiter: ']]',
         plugins: [fileTransformer({bundle: false, ...opts})],
     }).result.html;
 }
@@ -174,5 +175,74 @@ describe('File extension - plugin', () => {
             ],
         });
         expect(md.render('{% file src="../file" name="file.txt" %}')).toMatchSnapshot();
+    });
+
+    describe('dyrective syntax', () => {
+        it('should render file directive', () => {
+            expect(
+                html(':file[video.mp4](path/to/video)', {directiveSyntax: 'only'}),
+            ).toMatchSnapshot();
+        });
+
+        it('should render file inside text', () => {
+            expect(
+                html('before:file[file.txt](../../docs/readme.md)after', {directiveSyntax: 'only'}),
+            ).toMatchSnapshot();
+        });
+
+        it('should not render file without file url', () => {
+            expect(html(':file[file.txt]', {directiveSyntax: 'only'})).toBe(
+                `<p>:file[file.txt]</p>\n`,
+            );
+        });
+
+        it('should not render file without file name', () => {
+            expect(html(':file(path/to/file)', {directiveSyntax: 'only'})).toBe(
+                `<p>:file(path/to/file)</p>\n`,
+            );
+        });
+
+        it('should not add attrs not from whitelist', () => {
+            expect(
+                html(':file[a.md](a.md){data-list=1}', {directiveSyntax: 'only'}),
+            ).toMatchSnapshot();
+        });
+
+        it('should add allowed attrs', () => {
+            expect(
+                html(
+                    ':file[readme.md](../readme){referrerpolicy=origin rel=external target=\'_blank\' type="text/plain" hreflang=en}',
+                    {
+                        directiveSyntax: 'only',
+                    },
+                ),
+            ).toMatchSnapshot();
+        });
+
+        it('should generate file token', () => {
+            expect(
+                tokens(':file[video.mp4](path/to/video)', {directiveSyntax: 'only'}),
+            ).toMatchSnapshot();
+        });
+    });
+
+    describe('Options: directiveSyntax', () => {
+        const markup = dd`
+            {% file src="../file" name="file.txt" %}
+
+            :file[video.mp4](path/to/video)
+            `;
+
+        it('should render only old file markup', () => {
+            expect(html(markup, {directiveSyntax: 'disabled'})).toMatchSnapshot();
+        });
+
+        it('should render only new (directive) file markup', () => {
+            expect(html(markup, {directiveSyntax: 'only'})).toMatchSnapshot();
+        });
+
+        it('should render both file markups', () => {
+            expect(html(markup, {directiveSyntax: 'enabled'})).toMatchSnapshot();
+        });
     });
 });
