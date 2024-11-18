@@ -63,6 +63,13 @@ Options:
   Where target directore is `<transformer output option>/<plugin runtime option>`<br>
   Default: `true`<br>
 
+- `extraAttrs` – array of additional attributes in format `[name, value]`, that will be added to file links\
+  Default: `undefined`
+
+- `directiveSyntax` – enables new [directive syntax](#directive-syntax). \
+  Available values: `'disabled' | 'enabled' | 'only'`\
+  Default: `'disabled'`
+
 ## File markup
 
 ```md
@@ -75,23 +82,43 @@ Options:
 
 ### Supported attributes:
 
-| Name             | Required | Description                                                                                                                                       |
-| ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src`            | yes      | URL of the file. Will be mapped to [`href` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-href)                      |
-| `name`           | yes      | Name of the file. Will be mapped to [`download` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-download)             |
-| `lang`           | -        | Language of the file content. Will be mapped to [`hreflang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-hreflang) |
-| `referrerpolicy` | -        | [`referrerpolicy` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-referrerpolicy)                                     |
-| `rel`            | -        | [`rel` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-rel)                                                           |
-| `target`         | -        | [`target` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-target)                                                     |
-| `type`           | -        | [`type` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-type)                                                         |
+| Name             | Required | Description                                                                                                                                  |
+| ---------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src`            | yes      | URL of the file. Will be mapped to [`href` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#href)                      |
+| `name`           | yes      | Name of the file. Will be mapped to [`download` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#download)             |
+| `lang`           | -        | Language of the file content. Will be mapped to [`hreflang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#hreflang) |
+| `referrerpolicy` | -        | [`referrerpolicy` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#referrerpolicy)                                     |
+| `rel`            | -        | [`rel` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#rel)                                                           |
+| `target`         | -        | [`target` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#target)                                                     |
+| `type`           | -        | [`type` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#type)                                                         |
 
 > _Note: other attributes will be ignored_
 
-### Plugin options
+## Directive syntax
 
-| Name             | Type                 | Description                                      |
-| ---------------- | -------------------- | ------------------------------------------------ |
-| `fileExtraAttrs` | `[string, string][]` | Adds additional attributes to rendered hyperlink |
+Also you can use inline directive syntax for file links. For more information see here: [diplodoc-platform/directive](https://github.com/diplodoc-platform/directive/?tab=readme-ov-file#directive-syntax).
+
+To enable directive syntax pass `directiveSyntax: 'enabled'` to options. Or you can disabled old syntax and use only directive syntax: `directiveSyntax: 'only'`.
+
+```md
+:file[<file-name>](file-url)
+
+<!-- Example: -->
+
+:file[readme.md](path/to/readme/md){type=text/plain}
+```
+
+### Supported attributes:
+
+| Name             | Description                                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------------- |
+| `hreflang`       | [anchor `hreflang` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#hreflang)             |
+| `referrerpolicy` | [anchor `referrerpolicy` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#referrerpolicy) |
+| `rel`            | [anchor `rel` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#rel)                       |
+| `target`         | [anchor `target` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#target)                 |
+| `type`           | [anchor `type` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#type)                     |
+
+> _Note: other attributes will be ignored_
 
 ## CSS public variables
 
