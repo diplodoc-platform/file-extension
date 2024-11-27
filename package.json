@@ -1,6 +1,6 @@
 {
   "name": "@diplodoc/file-extension",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Template package for Diplodoc platform development",
   "main": "build/plugin/index.js",
   "types": "build/plugin/index.d.ts",
