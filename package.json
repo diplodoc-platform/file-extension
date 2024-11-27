@@ -36,6 +36,7 @@
     "build:js": "./esbuild/build.mjs",
     "build:declarations": "tsc -p tsconfig.publish.json --emitDeclarationOnly --outDir ./build",
     "test": "cd tests && npm ci && npm test -- --ci",
+    "prepublishOnly": "npm run build",
     "lint": "lint update && lint",
     "lint:fix": "lint update && lint fix",
     "pre-commit": "lint update && lint-staged",
