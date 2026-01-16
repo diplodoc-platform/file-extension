@@ -1,6 +1,6 @@
 {
   "name": "@diplodoc/file-extension",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Diplodoc platform extension that provides file links in documentation",
   "main": "build/plugin/index.js",
   "types": "build/plugin/index.d.ts",
