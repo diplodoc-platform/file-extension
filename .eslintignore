@@ -12,3 +12,8 @@ node_modules
 /dist
 /cache
 /external
+.lintstagedrc.js
+.eslintrc.js
+.prettierrc.js
+.stylelintrc.js
+esbuild/**/*.mjs

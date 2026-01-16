@@ -1,15 +1,26 @@
-# Diplodoc file extension
-
 [![NPM version](https://img.shields.io/npm/v/@diplodoc/file-extension.svg?style=flat)](https://www.npmjs.org/package/@diplodoc/file-extension)
 
-This is an extension of the Diplodoc platform, which allows adding links to files in the documentation.
+# @diplodoc/file-extension
 
-The extension contains some parts:
+Diplodoc platform extension that provides file links in documentation. Allows adding downloadable file links with customizable styling and asset bundling support.
 
-- [Prepared styles](#prepared-styles)
-- [MarkdownIt transform plugin](#markdownit-transform-plugin)
+## Features
 
-## Quickstart
+- **MarkdownIt transform plugin** — Process file directives in YFM
+- **Runtime styles** — SCSS styles for file links
+- **File markup syntax** — `{% file src="..." name="..." %}` syntax support
+- **Directive syntax** — Modern `:file[name](url)` syntax support
+- **Asset bundling** — Integration with documentation build process
+
+## Installation
+
+```bash
+npm install @diplodoc/file-extension
+```
+
+## Usage
+
+### Quickstart
 
 Attach the plugin to the transformer:
 
@@ -124,3 +135,29 @@ To enable directive syntax pass `directiveSyntax: 'enabled'` to options. Or you 
 
 - `--yfm-file-icon` – sets custom file icon image
 - `--yfm-file-icon-color` – sets custom file icon color
+
+## Development
+
+### Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Build package
+npm run build
+
+# Run tests
+npm test
+
+# Lint code
+npm run lint
+```
+
+## Documentation
+
+For detailed information about architecture, development, and contributing, see [AGENTS.md](./AGENTS.md).
+
+## License
+
+MIT

@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it';
 import transform from '@diplodoc/transform';
 import dd from 'ts-dedent';
+import {describe, expect, it, vi} from 'vitest';
 
 import {type TransformOptions, transform as fileTransformer} from '../../src/plugin';
 
@@ -150,13 +151,13 @@ describe('File extension - plugin', () => {
     });
 
     it('should not call onBundle', () => {
-        const onBundle = jest.fn(() => {});
+        const onBundle = vi.fn(() => {});
         html('text', {bundle: true, onBundle});
         expect(onBundle).not.toHaveBeenCalled();
     });
 
     it('should call onBundle', () => {
-        const onBundle = jest.fn(() => {});
+        const onBundle = vi.fn(() => {});
         html('{% file src="../file" name="file.txt" %}', {bundle: true, onBundle});
         expect(onBundle).toHaveBeenCalled();
     });
