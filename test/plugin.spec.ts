@@ -1,26 +1,21 @@
 import MarkdownIt from 'markdown-it';
-import transform from '@diplodoc/transform';
 import dd from 'ts-dedent';
 import {describe, expect, it, vi} from 'vitest';
 
-import {type TransformOptions, transform as fileTransformer} from '../../src/plugin';
+import {type TransformOptions, transform as fileTransformer} from '../src/plugin';
 
 function html(markup: string, opts?: TransformOptions) {
-    return transform(markup, {
-        // override the default markdown-it-attrs delimiters,
-        // to make it easier to check html for non-valid file markup
-        leftDelimiter: '[[',
-        rightDelimiter: ']]',
-        plugins: [fileTransformer({bundle: false, ...opts})],
-    }).result.html;
+    const md = new MarkdownIt();
+    md.use(fileTransformer({bundle: false, ...opts}));
+    return md.render(markup);
 }
 
 function meta(markup: string, opts?: TransformOptions) {
-    return transform(markup, {
-        leftDelimiter: '[',
-        rightDelimiter: ']',
-        plugins: [fileTransformer({bundle: false, ...opts})],
-    }).result.meta;
+    const md = new MarkdownIt();
+    md.use(fileTransformer({bundle: false, ...opts}));
+    const env: {meta?: {style?: string[]}} = {};
+    md.render(markup, env);
+    return env.meta;
 }
 
 function tokens(markup: string, opts?: TransformOptions) {
@@ -38,8 +33,12 @@ describe('File extension - plugin', () => {
     });
 
     it('should not render file without all required attrs', () => {
-        expect(html('{% file src="../file" %}')).toBe('<p>{% file src="../file" %}</p>\n');
-        expect(html('{% file name="file.txt" %}')).toBe('<p>{% file name="file.txt" %}</p>\n');
+        expect(html('{% file src="../file" %}')).toBe(
+            '<p>{% file src=&quot;../file&quot; %}</p>\n',
+        );
+        expect(html('{% file name="file.txt" %}')).toBe(
+            '<p>{% file name=&quot;file.txt&quot; %}</p>\n',
+        );
     });
 
     it('should render file with text before', () => {
@@ -118,7 +117,7 @@ describe('File extension - plugin', () => {
 
     it('should not render file without spaces around attrs', () => {
         expect(html('{% file src="index.txt"name="index.html"type="text/html" %}')).toBe(
-            `<p>{% file src="index.txt"name="index.html"type="text/html" %}</p>\n`,
+            `<p>{% file src=&quot;index.txt&quot;name=&quot;index.html&quot;type=&quot;text/html&quot; %}</p>\n`,
         );
     });
 

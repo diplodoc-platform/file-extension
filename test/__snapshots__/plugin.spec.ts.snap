@@ -7,7 +7,7 @@ exports[`File extension - plugin > Options: directiveSyntax > should render both
 `;
 
 exports[`File extension - plugin > Options: directiveSyntax > should render only new (directive) file markup 1`] = `
-"<p>{% file src=\\"../file\\" name=\\"file.txt\\" %}</p>
+"<p>{% file src=&quot;../file&quot; name=&quot;file.txt&quot; %}</p>
 <p><a class=\\"yfm-file\\" href=\\"path/to/video\\" download=\\"video.mp4\\"><span class=\\"yfm-file__icon\\"></span>video.mp4</a></p>
 "
 `;
@@ -134,7 +134,7 @@ exports[`File extension - plugin > should add extra attrs by passing them to plu
 `;
 
 exports[`File extension - plugin > should allow quoutes in attribute value 1`] = `
-"<p><a href=\\"ind'ex.txt\\" download=\\"ind&quot;ex.html\\" class=\\"yfm-file\\"><span class=\\"yfm-file__icon\\"></span>ind\\"ex.html</a></p>
+"<p><a href=\\"ind'ex.txt\\" download=\\"ind&quot;ex.html\\" class=\\"yfm-file\\"><span class=\\"yfm-file__icon\\"></span>ind&quot;ex.html</a></p>
 "
 `;
 

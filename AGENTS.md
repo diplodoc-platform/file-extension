@@ -181,12 +181,13 @@ The extension provides:
 
 ## Testing
 
-The package has unit tests in the `tests/` directory (separate package):
+The package has unit tests at the package root (metapackage-aligned):
 
-- **Location**: `tests/` directory (separate `package.json`)
-- **Framework**: Vitest (to be migrated from Jest)
-- **Test files**: `*.test.ts`
-- **Snapshots**: HTML output snapshots in `__snapshots__/`
+- **Location**: `test/` directory
+- **Framework**: Vitest
+- **Test files**: `*.spec.ts`
+- **Snapshots**: `test/__snapshots__/`
+- **No dependency on `@diplodoc/transform`**: tests use MarkdownIt and the file plugin only.
 
 **Test Commands**:
 
@@ -195,7 +196,7 @@ The package has unit tests in the `tests/` directory (separate package):
 npm test
 
 # Run tests in watch mode
-cd tests && npm test -- --watch
+npm test -- --watch
 ```
 
 **Test Structure**:
@@ -243,7 +244,7 @@ npm run pre-commit
 
 1. **Metapackage vs Standalone**: This package can be used both as part of the metapackage (workspace mode) and as a standalone npm package. All scripts must work in both contexts.
 
-2. **Tests Directory**: Tests are in a separate `tests/` directory with its own `package.json`. When running tests, ensure dependencies are installed in the `tests/` directory.
+2. **Tests Directory**: Tests are in `test/` at package root. Run `npm test` from the package directory.
 
 3. **Build Outputs**: The package builds to `build/` directory. This directory should be excluded from version control and TypeScript type checking.
 
