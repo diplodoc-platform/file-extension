@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/diplodoc-platform/file-extension/compare/v0.2.2...v0.2.3) (2026-05-28)
+
+
+### Bug Fixes
+
+* **deps:** updated node to 24 ([d8656ce](https://github.com/diplodoc-platform/file-extension/commit/d8656ceaac59c3df0ecc4b066dd15a7f0e2bfd44))
+
 ## [0.2.2](https://github.com/diplodoc-platform/file-extension/compare/v0.2.1...v0.2.2) (2026-01-16)
 
 
