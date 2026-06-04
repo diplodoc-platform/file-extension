@@ -49,7 +49,7 @@
     "prepare": "husky || true"
   },
   "devDependencies": {
-    "@diplodoc/infra": "2.0.3",
+    "@diplodoc/infra": "2.0.4",
     "@diplodoc/tsconfig": "^1.0.2",
     "@types/markdown-it": "^13.0.9",
     "@types/node": "^22.19.7",
