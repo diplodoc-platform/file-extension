@@ -1,7 +1,9 @@
+import type StateCore from 'markdown-it/lib/rules_core/state_core';
+
 import MarkdownIt from 'markdown-it';
 
 import {type FileOptions, filePlugin} from './plugin';
-import {ENV_FLAG_NAME} from './const';
+import {ENV_FLAG_NAME, FILE_TOKEN} from './const';
 import {hidden} from './utils';
 import {fileDirective} from './directive';
 
@@ -50,6 +52,35 @@ const registerTransform = (
     }
     if (directiveSyntax === 'enabled' || directiveSyntax === 'only') {
         fileDirective(md, {fileExtraAttrs: extraAttrs});
+    }
+
+    const yfmFileGuard = (state: StateCore) => {
+        const tokens = state.tokens;
+
+        for (let i = 0; i < tokens.length - 3; i++) {
+            const listClose = tokens[i];
+            const inlineToken = tokens[i + 2];
+            const {children} = inlineToken;
+
+            if (
+                (listClose.type === 'bullet_list_close' ||
+                    listClose.type === 'ordered_list_close' ||
+                    listClose.type === 'table_close') &&
+                tokens[i + 1].type === 'paragraph_open' &&
+                inlineToken.type === 'inline' &&
+                children !== null &&
+                children.length === 1 &&
+                children[0].type === FILE_TOKEN
+            ) {
+                inlineToken.content = '';
+            }
+        }
+    };
+
+    try {
+        md.core.ruler.before('curly_attributes', 'yfm_file_guard', yfmFileGuard);
+    } catch {
+        md.core.ruler.push('yfm_file_guard', yfmFileGuard);
     }
 
     md.core.ruler.push('yfm_file_after', ({env}) => {
