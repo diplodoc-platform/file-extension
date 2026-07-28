@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.5](https://github.com/diplodoc-platform/file-extension/compare/v0.2.4...v0.2.5) (2026-07-28)
+
+
+### Bug Fixes
+
+* fixed file guard ([e500870](https://github.com/diplodoc-platform/file-extension/commit/e500870e63220818fc4e4b0da973b854cc15c483))
+
 ## [0.2.4](https://github.com/diplodoc-platform/file-extension/compare/v0.2.3...v0.2.4) (2026-05-28)
 
 
