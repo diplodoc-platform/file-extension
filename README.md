@@ -170,3 +170,13 @@ For detailed information about architecture, development, and contributing, see 
 ## License
 
 MIT
+
+## MarkdownIt compatibility
+
+The plugin supports MarkdownIt 13 and 15. Its types derive from the public parser
+constructor, so consumers use the declarations of their installed parser.
+
+TypeScript consumers require TypeScript 5.3 or newer for import resolution
+attributes; the strict installed-package matrix was tested with TypeScript 6.0.3.
+For MarkdownIt 15, native CommonJS declarations use an explicit import-mode type
+query to avoid the upstream 15.0.3 CommonJS declaration shim issue.
