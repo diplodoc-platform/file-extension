@@ -16,7 +16,11 @@ An existing version or a registry failure stops publication. The existing
 `NPM_TOKEN` secret is supplied only to the publishing step; it is never read or
 printed by the checks.
 
-The workflow publishes with provenance and explicit `--tag transform5`.
+The workflow packs the checked build with lifecycle scripts disabled before any
+credentials are supplied. It verifies the tarball basename, package name, version
+and SHA-256; the authenticated step publishes only that exact tarball with
+`--ignore-scripts`, provenance and explicit `--tag transform5`. Package lifecycle
+code never runs with the publish token. The job has a 30-minute timeout.
 It creates no Git tags, GitHub releases or master commits, and does not write the
 `latest` dist-tag. Do not use the generic release workflow's stable action or its
 branch-name-based prerelease action for this train.

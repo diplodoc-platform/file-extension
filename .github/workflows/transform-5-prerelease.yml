@@ -21,6 +21,7 @@ jobs:
       github.event_name == 'push' &&
       github.ref == 'refs/heads/codex/transform-5-compat-prerelease'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       PACKAGE_NAME: '@diplodoc/file-extension'
       PACKAGE_VERSION: '0.2.7-transform5.0'
@@ -88,6 +89,33 @@ jobs:
       - name: Verify installed package where supported
         run: npm run test:package --if-present
 
+      - name: Pack and verify the exact prerelease without credentials
+        run: |
+          mkdir -p "$RUNNER_TEMP/transform5-prerelease"
+          npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP/transform5-prerelease" > "$RUNNER_TEMP/transform5-prerelease/pack.json"
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {execFileSync} from 'node:child_process';
+          import {createHash} from 'node:crypto';
+          import {readFileSync, writeFileSync} from 'node:fs';
+          import {basename, join} from 'node:path';
+          const directory = join(process.env.RUNNER_TEMP, 'transform5-prerelease');
+          const packages = JSON.parse(readFileSync(join(directory, 'pack.json'), 'utf8'));
+          assert.equal(packages.length, 1);
+          const packed = packages[0];
+          assert.equal(packed.name, '@diplodoc/file-extension');
+          assert.equal(packed.version, '0.2.7-transform5.0');
+          assert.equal(packed.filename, 'diplodoc-file-extension-0.2.7-transform5.0.tgz');
+          assert.equal(basename(packed.filename), packed.filename);
+          const tarball = join(directory, packed.filename);
+          const manifest = JSON.parse(execFileSync('tar', ['-xOf', tarball, 'package/package.json'], {encoding: 'utf8'}));
+          assert.equal(manifest.name, packed.name);
+          assert.equal(manifest.version, packed.version);
+          const sha = createHash('sha256').update(readFileSync(tarball)).digest('hex');
+          writeFileSync(join(directory, 'package.sha256'), sha + '  ' + tarball + '\n');
+          console.log(packed.name + '@' + packed.version + ' sha256=' + sha);
+          NODE
+
       - name: Verify release inputs stayed unchanged
         run: git diff --exit-code -- package.json package-lock.json
 
@@ -103,6 +131,8 @@ jobs:
           NODE
 
       - name: Publish only to the transform5 dist-tag
-        run: npm publish --tag transform5 --provenance --access public
+        run: |
+          sha256sum --check "$RUNNER_TEMP/transform5-prerelease/package.sha256"
+          npm publish "$RUNNER_TEMP/transform5-prerelease/diplodoc-file-extension-0.2.7-transform5.0.tgz" --ignore-scripts --tag transform5 --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
