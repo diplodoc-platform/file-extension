@@ -89,7 +89,7 @@ const registerTransform = (
             if (typeof meta !== 'object' || meta === null) {
                 throw new TypeError('Expected env.meta to be an object.');
             }
-            if (!('style' in meta)) Object.assign(meta, {style: []});
+            if (!('style' in meta) || !meta.style) Object.assign(meta, {style: []});
             if (!('style' in meta) || !Array.isArray(meta.style)) {
                 throw new TypeError('Expected a runtime style array.');
             }
