@@ -63,6 +63,6 @@
     "@diplodoc/directive": "^0.3.6"
   },
   "peerDependencies": {
-    "markdown-it": "^13.0.0"
+    "markdown-it": "^13.0.0 || ^15.0.3"
   }
 }

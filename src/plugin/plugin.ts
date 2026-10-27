@@ -1,3 +1,5 @@
+import type {PluginWithOptions} from './markdown-it';
+
 import {
     ENV_FLAG_NAME,
     FILE_TOKEN,
@@ -16,7 +18,7 @@ export type FileOptions = {
     fileExtraAttrs?: [string, string][];
 };
 
-export const filePlugin: markdownit.PluginWithOptions<FileOptions> = (md, opts) => {
+export const filePlugin: PluginWithOptions<FileOptions> = (md, opts) => {
     fileRenderer(md);
 
     md.inline.ruler.push(RULE_NAME, (state, silent) => {

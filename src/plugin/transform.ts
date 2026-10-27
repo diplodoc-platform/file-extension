@@ -1,6 +1,6 @@
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
+import type {MarkdownIt, PluginWithOptions, StateCore} from './markdown-it';
 
-import MarkdownIt from 'markdown-it';
+import MarkdownItConstructor from 'markdown-it';
 
 import {type FileOptions, filePlugin} from './plugin';
 import {ENV_FLAG_NAME, FILE_TOKEN} from './const';
@@ -85,13 +85,18 @@ const registerTransform = (
 
     md.core.ruler.push('yfm_file_after', ({env}) => {
         if (env?.[ENV_FLAG_NAME]) {
-            env.meta ||= {};
-            env.meta.style ||= [];
-            env.meta.style.push(runtime.style);
+            const meta = (env.meta ||= {});
+            if (typeof meta !== 'object' || meta === null) {
+                throw new TypeError('Expected env.meta to be an object.');
+            }
+            if (!('style' in meta) || !meta.style) Object.assign(meta, {style: []});
+            if (!('style' in meta) || !Array.isArray(meta.style)) {
+                throw new TypeError('Expected a runtime style array.');
+            }
+            meta.style.push(runtime.style);
 
             if (bundle && onBundle) {
-                hidden(env, 'bundled', new Set<string>());
-                onBundle(env, output, runtime);
+                onBundle(hidden(env, 'bundled', new Set<string>()), output, runtime);
             }
         }
     });
@@ -109,10 +114,7 @@ export const transform = (opts: TransformOptions = {}) => {
             ? opts.runtime
             : {style: opts?.runtime ?? '_assets/file-extension.css'};
 
-    const plugin: MarkdownIt.PluginWithOptions<PluginOptions> = (
-        md,
-        {output = '.', fileExtraAttrs} = {},
-    ) => {
+    const plugin: PluginWithOptions<PluginOptions> = (md, {output = '.', fileExtraAttrs} = {}) => {
         registerTransform(md, {
             bundle,
             runtime,
@@ -125,7 +127,7 @@ export const transform = (opts: TransformOptions = {}) => {
 
     Object.assign(plugin, {
         collect(input: string, {destRoot = '.'}: InputOptions) {
-            const md = new MarkdownIt().use((md: MarkdownIt) => {
+            const md = new MarkdownItConstructor().use((md: MarkdownIt) => {
                 registerTransform(md, {
                     bundle,
                     runtime,

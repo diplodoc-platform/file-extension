@@ -246,3 +246,44 @@ describe('File extension - plugin', () => {
         });
     });
 });
+
+describe('runtime metadata preservation', () => {
+    const markup = '{% file src="../file" name="file.txt" %}';
+    const runtime = '_bundle/files.css';
+    const parser = () => new MarkdownIt().use(fileTransformer({bundle: false, runtime}));
+
+    it.each([undefined, null, false, 0, ''])('initializes falsey metadata: %s', (initial) => {
+        const env = {meta: initial};
+        parser().render(markup, env);
+        expect(env.meta).toEqual({style: [runtime]});
+    });
+
+    it.each([undefined, null, false, 0, ''])('initializes falsey style lists: %s', (initial) => {
+        const env = {meta: {style: initial, title: 'Existing metadata'}};
+        parser().render(markup, env);
+        expect(env.meta).toEqual({style: [runtime], title: 'Existing metadata'});
+    });
+
+    it('appends to the existing style list without replacing metadata or arrays', () => {
+        const style = ['existing.css'];
+        const meta = {style, title: 'Existing metadata'};
+        const env = {meta};
+        parser().render(markup, env);
+        expect(env.meta).toBe(meta);
+        expect(env.meta.style).toBe(style);
+        expect(style).toEqual(['existing.css', runtime]);
+        expect(env.meta.title).toBe('Existing metadata');
+    });
+
+    it.each([true, 1, 'metadata'])('rejects truthy non-object metadata: %s', (initial) => {
+        expect(() => parser().render(markup, {meta: initial})).toThrow(
+            'Expected env.meta to be an object.',
+        );
+    });
+
+    it.each([true, {}, 'style.css'])('rejects truthy non-array styles: %s', (initial) => {
+        expect(() => parser().render(markup, {meta: {style: initial}})).toThrow(
+            'Expected a runtime style array.',
+        );
+    });
+});

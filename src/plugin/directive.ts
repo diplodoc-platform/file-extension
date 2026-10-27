@@ -1,3 +1,4 @@
+import type {PluginWithOptions} from './markdown-it';
 import type {FileOptions} from './plugin';
 
 import {directiveParser, registerInlineDirective} from '@diplodoc/directive';
@@ -13,7 +14,7 @@ const ALLOWED_ATTRS: readonly string[] = [
     LinkHtmlAttr.HrefLang,
 ];
 
-export const fileDirective: markdownit.PluginWithOptions<FileOptions> = (md, opts = {}) => {
+export const fileDirective: PluginWithOptions<FileOptions> = (md, opts = {}) => {
     const {fileExtraAttrs} = opts;
 
     fileRenderer(md);
