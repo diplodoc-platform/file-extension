@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.7](https://github.com/diplodoc-platform/file-extension/compare/v0.2.6...v0.2.7) (2026-10-28)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/directive@0.4.0 ([629901b](https://github.com/diplodoc-platform/file-extension/commit/629901bade95a1d0fdf70fad3ab18bacec982948))
+
 ## [0.2.6](https://github.com/diplodoc-platform/file-extension/compare/v0.2.5...v0.2.6) (2026-08-06)
 
 
