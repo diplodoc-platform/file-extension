@@ -1,0 +1,41 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const {createRequire} = require('node:module');
+const file = require('@diplodoc/file-extension');
+const Host = require('markdown-it');
+const runtime = require('@diplodoc/file-extension/runtime');
+assert.deepEqual(runtime, {});
+const fixtureRequire = createRequire(__filename);
+assert.equal(fixtureRequire('@diplodoc/directive/package.json').version, '0.5.0-transform5.2');
+const legacy = '{% file src="file.txt" name="File" %}';
+const inline = ':file[File](file.txt){rel="x&y" rel=z}';
+for (const md of [new Host().use(file.transform({bundle:false})), new Host().use(file.transform({bundle:false,directiveSyntax:'disabled'}))]) {
+    assert.match(md.render(legacy), /class="yfm-file"/);
+    assert.doesNotMatch(md.render(inline), /class="yfm-file"/);
+}
+for (const name of ['markdown-it', 'markdown-it-15']) {
+    let Markdown;
+    try { Markdown = fixtureRequire(name); } catch (e) { if (e.code === 'MODULE_NOT_FOUND' && name === 'markdown-it-15') continue; throw e; }
+    const env = {};
+    const md = new Markdown().use(file.transform({bundle:false,directiveSyntax:'enabled'}));
+    assert.match(md.render(legacy, env), /class="yfm-file"/);
+    assert.match(md.render(inline), /rel="x&amp;y,z"/);
+    assert.deepEqual(env.meta.style, ['_assets/file-extension.css']);
+}
+const out = path.join(process.cwd(), 'output');
+const plugin = file.transform({runtime:{style:'assets/file.css'}});
+const descriptor = Object.getOwnPropertyDescriptor(plugin, 'collect');
+assert.equal(descriptor.value, plugin.collect);
+assert.equal(descriptor.enumerable, true);
+assert.equal(descriptor.writable, true);
+assert.equal(descriptor.configurable, true);
+const extractedCollect = plugin.collect;
+assert.equal(extractedCollect, plugin.collect);
+const env = {};
+new Host().use(plugin, {output:out}).render(legacy, env);
+assert.match(fs.readFileSync(path.join(out,'assets/file.css'), 'utf8'), /yfm-file/);
+extractedCollect(legacy, {destRoot:path.join(process.cwd(),'collect')});
+assert.match(fs.readFileSync(path.join(process.cwd(),'collect/assets/file.css'), 'utf8'), /yfm-file/);
+const linkified = new Host({linkify:true}).render('Visit https://example.com/a?q=1 and hello@example.com.');
+assert.equal(linkified, '<p>Visit <a href="https://example.com/a?q=1">https://example.com/a?q=1</a> and <a href="mailto:hello@example.com">hello@example.com</a>.</p>\n');

@@ -1,0 +1,17 @@
+import type MarkdownItConstructor from 'markdown-it' with {'resolution-mode': 'import'};
+import {createRequire} from 'node:module';
+import {transform, type FileTransformPlugin} from '@diplodoc/file-extension';
+import * as runtime from '@diplodoc/file-extension/runtime';
+
+const MarkdownIt: typeof MarkdownItConstructor = createRequire(__filename)('markdown-it');
+new MarkdownIt().use(transform({bundle: false}));
+new MarkdownIt().use(transform({bundle: false, directiveSyntax: 'enabled'}));
+void runtime;
+const collecting: FileTransformPlugin = transform({bundle: false});
+collecting.collect('{% file src="file.txt" name="File" %}', {destRoot: 'out'});
+// @ts-expect-error The destination is required.
+collecting.collect('plain', {});
+// @ts-expect-error Both input and options are required.
+collecting.collect('plain');
+// @ts-expect-error Destination must be a string.
+collecting.collect('plain', {destRoot: 123});

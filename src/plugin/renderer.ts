@@ -1,8 +1,8 @@
-import type {PluginWithOptions} from './markdown-it';
+import type {FilePlugin} from './markdown-it';
 
 import {FILE_TOKEN, FileClassName} from './const';
 
-export const fileRenderer: PluginWithOptions<never> = (md) => {
+export const fileRenderer: FilePlugin<never> = (md) => {
     md.renderer.rules[FILE_TOKEN] = (tokens, idx, _opts, _env, self) => {
         const token = tokens[idx];
         const iconHtml = `<span class="${md.utils.escapeHtml(FileClassName.Icon)}"></span>`;
