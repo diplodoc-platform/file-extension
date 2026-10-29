@@ -1,6 +1,14 @@
-import type StateCore from 'markdown-it/lib/rules_core/state_core';
+import type {DirectiveBlockState} from '@diplodoc/directive';
+import type {
+    FileCoreState,
+    FileHost,
+    FileInlineState,
+    FilePlugin,
+    FileRenderer,
+    FileToken,
+} from './markdown-it';
 
-import MarkdownIt from 'markdown-it';
+import MarkdownItConstructor from 'markdown-it';
 
 import {type FileOptions, filePlugin} from './plugin';
 import {ENV_FLAG_NAME, FILE_TOKEN} from './const';
@@ -12,6 +20,11 @@ export type PluginOptions = FileOptions & {
 };
 
 export type RuntimeObj = {style: string};
+
+export type FileCollectOptions = {destRoot: string};
+export type FileTransformPlugin = FilePlugin<PluginOptions> & {
+    collect(input: string, options: FileCollectOptions): void;
+};
 
 export type TransformOptions = {
     runtime?: string | {style: string};
@@ -31,8 +44,14 @@ export type TransformOptions = {
     onBundle?: (env: {bundled: Set<string>}, output: string, runtime: RuntimeObj) => void;
 };
 
-const registerTransform = (
-    md: MarkdownIt,
+const registerTransform = <
+    T extends FileToken,
+    C extends FileCoreState<T>,
+    B extends DirectiveBlockState,
+    I extends FileInlineState<T>,
+    R extends FileRenderer<T>,
+>(
+    md: FileHost<T, C, B, I, R>,
     {
         extraAttrs,
         bundle,
@@ -54,7 +73,7 @@ const registerTransform = (
         fileDirective(md, {fileExtraAttrs: extraAttrs});
     }
 
-    const yfmFileGuard = (state: StateCore) => {
+    const yfmFileGuard = (state: C) => {
         const tokens = state.tokens;
 
         for (let i = 0; i < tokens.length - 3; i++) {
@@ -85,19 +104,24 @@ const registerTransform = (
 
     md.core.ruler.push('yfm_file_after', ({env}) => {
         if (env?.[ENV_FLAG_NAME]) {
-            env.meta ||= {};
-            env.meta.style ||= [];
-            env.meta.style.push(runtime.style);
+            const meta = (env.meta ||= {});
+            if (typeof meta !== 'object' || meta === null) {
+                throw new TypeError('Expected env.meta to be an object.');
+            }
+            if (!('style' in meta) || !meta.style) Object.assign(meta, {style: []});
+            if (!('style' in meta) || !Array.isArray(meta.style)) {
+                throw new TypeError('Expected a runtime style array.');
+            }
+            meta.style.push(runtime.style);
 
             if (bundle && onBundle) {
-                hidden(env, 'bundled', new Set<string>());
-                onBundle(env, output, runtime);
+                onBundle(hidden(env, 'bundled', new Set<string>()), output, runtime);
             }
         }
     });
 };
 
-export const transform = (opts: TransformOptions = {}) => {
+export const transform = (opts: TransformOptions = {}): FileTransformPlugin => {
     const {bundle = true, directiveSyntax = 'disabled'} = opts;
 
     if (bundle && typeof opts.runtime === 'string') {
@@ -109,10 +133,7 @@ export const transform = (opts: TransformOptions = {}) => {
             ? opts.runtime
             : {style: opts?.runtime ?? '_assets/file-extension.css'};
 
-    const plugin: MarkdownIt.PluginWithOptions<PluginOptions> = (
-        md,
-        {output = '.', fileExtraAttrs} = {},
-    ) => {
+    const plugin: FilePlugin<PluginOptions> = (md, {output = '.', fileExtraAttrs} = {}) => {
         registerTransform(md, {
             bundle,
             runtime,
@@ -123,9 +144,9 @@ export const transform = (opts: TransformOptions = {}) => {
         });
     };
 
-    Object.assign(plugin, {
-        collect(input: string, {destRoot = '.'}: InputOptions) {
-            const md = new MarkdownIt().use((md: MarkdownIt) => {
+    return Object.assign(plugin, {
+        collect(input: string, {destRoot = '.'}: FileCollectOptions) {
+            const md = new MarkdownItConstructor().use((md) => {
                 registerTransform(md, {
                     bundle,
                     runtime,
@@ -139,10 +160,4 @@ export const transform = (opts: TransformOptions = {}) => {
             md.parse(input, {});
         },
     });
-
-    return plugin;
-};
-
-type InputOptions = {
-    destRoot: string;
 };

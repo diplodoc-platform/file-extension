@@ -114,6 +114,10 @@ Options:
 
 > _Note: other attributes will be ignored_
 
+If a supported attribute is repeated, its values are serialized as a comma-separated string. Prefer a single value per attribute.
+
+The plugin returned by `transform()` also exposes `collect(input, {destRoot})`. It parses the supplied source and, when bundling is enabled and a file is recognized, copies the runtime stylesheet under `destRoot`. Both arguments and the string `destRoot` are required by the public TypeScript API. The callable plugin and its collection options are exported as `FileTransformPlugin` and `FileCollectOptions` types.
+
 ## Directive syntax
 
 Also you can use inline directive syntax for file links. For more information see here: [diplodoc-platform/directive](https://github.com/diplodoc-platform/directive/?tab=readme-ov-file#directive-syntax).
@@ -139,6 +143,8 @@ To enable directive syntax pass `directiveSyntax: 'enabled'` to options. Or you 
 | `type`           | [anchor `type` attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#type)                     |
 
 > _Note: other attributes will be ignored_
+
+If a supported attribute is repeated, its values are serialized as a comma-separated string. Prefer a single value per attribute.
 
 ## CSS public variables
 
@@ -170,3 +176,13 @@ For detailed information about architecture, development, and contributing, see 
 ## License
 
 MIT
+
+## MarkdownIt compatibility
+
+The plugin supports MarkdownIt 13 and 15. Its types derive from the public parser
+constructor, so consumers use the declarations of their installed parser.
+
+TypeScript consumers require TypeScript 5.3 or newer for import resolution
+attributes; the strict installed-package matrix was tested with TypeScript 6.0.3.
+For MarkdownIt 15, native CommonJS declarations use an explicit import-mode type
+query to avoid the upstream 15.0.3 CommonJS declaration shim issue.

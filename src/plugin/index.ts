@@ -1,4 +1,9 @@
-export type {PluginOptions, TransformOptions} from './transform';
+export type {
+    FileCollectOptions,
+    FileTransformPlugin,
+    PluginOptions,
+    TransformOptions,
+} from './transform';
 export {transform} from './transform';
 export {
     FileClassName,

@@ -1,0 +1,13 @@
+import type MarkdownIt13Constructor from 'markdown-it' with {'resolution-mode': 'import'};
+import type MarkdownIt15Constructor from 'markdown-it-15' with {'resolution-mode': 'import'};
+import {createRequire} from 'node:module';
+import {transform} from '@diplodoc/file-extension';
+
+const requireHost = createRequire(__filename);
+const MarkdownIt13: typeof MarkdownIt13Constructor = requireHost('markdown-it');
+const MarkdownIt15: typeof MarkdownIt15Constructor = requireHost('markdown-it-15');
+const plugin = transform({bundle: false, directiveSyntax: 'enabled'});
+new MarkdownIt13().use(plugin);
+new MarkdownIt15().use(plugin);
+// @ts-expect-error A File host must provide the parser and rendering operations it uses.
+plugin({});
