@@ -1,6 +1,6 @@
 {
   "name": "@diplodoc/file-extension",
-  "version": "0.2.7-transform5.1",
+  "version": "1.0.0-beta.1",
   "description": "Diplodoc platform extension that provides file links in documentation",
   "main": "build/plugin/index.js",
   "types": "build/plugin/index.d.ts",
@@ -61,7 +61,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@diplodoc/directive": "0.5.0-transform5.2"
+    "@diplodoc/directive": "1.0.0-beta.1"
   },
   "peerDependencies": {
     "markdown-it": "^13.0.0 || ^15.0.3"
@@ -70,5 +70,9 @@
     "markdown-it": {
       "linkify-it": "5.0.2"
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "transform5"
   }
 }
