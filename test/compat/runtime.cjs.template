@@ -7,7 +7,7 @@ const Host = require('markdown-it');
 const runtime = require('@diplodoc/file-extension/runtime');
 assert.deepEqual(runtime, {});
 const fixtureRequire = createRequire(__filename);
-assert.equal(fixtureRequire('@diplodoc/directive/package.json').version, '1.0.0-beta.1');
+assert.equal(fixtureRequire('@diplodoc/directive/package.json').version, '1.0.0-beta.2');
 const legacy = '{% file src="file.txt" name="File" %}';
 const inline = ':file[File](file.txt){rel="x&y" rel=z}';
 for (const md of [new Host().use(file.transform({bundle:false})), new Host().use(file.transform({bundle:false,directiveSyntax:'disabled'}))]) {
