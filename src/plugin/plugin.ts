@@ -1,3 +1,5 @@
+import type {FilePlugin} from './markdown-it';
+
 import {
     ENV_FLAG_NAME,
     FILE_TOKEN,
@@ -45,7 +47,7 @@ function parseAttributes(source: string, start: number) {
     return {attrs, nameStart, end: end + closing[0].length};
 }
 
-export const filePlugin: markdownit.PluginWithOptions<FileOptions> = (md, opts) => {
+export const filePlugin: FilePlugin<FileOptions> = (md, opts) => {
     fileRenderer(md);
 
     md.inline.ruler.push(RULE_NAME, (state, silent) => {
