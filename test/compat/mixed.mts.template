@@ -1,0 +1,9 @@
+import MarkdownIt13 from 'markdown-it';
+import MarkdownIt15 from 'markdown-it-15';
+import {transform} from '@diplodoc/file-extension';
+
+const plugin = transform({bundle: false, directiveSyntax: 'enabled'});
+new MarkdownIt13().use(plugin);
+new MarkdownIt15().use(plugin);
+// @ts-expect-error A File host must provide the parser and rendering operations it uses.
+plugin({});
