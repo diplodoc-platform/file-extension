@@ -1,0 +1,3 @@
+import {transform} from '@diplodoc/file-extension';
+export const file = transform({bundle: false});
+export * as runtime from '@diplodoc/file-extension/runtime';
