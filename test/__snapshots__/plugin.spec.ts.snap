@@ -185,7 +185,12 @@ exports[`File extension - plugin > should generate yfm-file token 1`] = `
         "level": 0,
         "map": null,
         "markup": "{% file ",
-        "meta": null,
+        "meta": {
+          "fileMarkup": {
+            "afterName": "\\" %}",
+            "beforeName": "{% file src=\\"../file\\" name=\\"",
+          },
+        },
         "nesting": 0,
         "tag": "",
         "type": "yfm_file",
