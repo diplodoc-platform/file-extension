@@ -18,12 +18,12 @@ export type FileOptions = {
 
 function parseAttributes(source: string, start: number) {
     const attrs: Record<string, string> = {};
-    const attribute = /\s*(\w+)=(?:"([^"]+)"|'([^']+)')\s/gy;
+    const attribute = /\s*(\w+)=(?:"([^"]+)"|'([^']+)')\s/y;
     attribute.lastIndex = start;
 
     let nameStart = 0;
     let end = start;
-    for (const match of source.matchAll(attribute)) {
+    for (let match = attribute.exec(source); match; match = attribute.exec(source)) {
         const [raw, key, doubleQuoted, singleQuoted] = match;
         end = match.index + raw.length;
 
