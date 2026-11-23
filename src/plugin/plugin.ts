@@ -35,32 +35,39 @@ export const filePlugin: markdownit.PluginWithOptions<FileOptions> = (md, opts) 
         const paramsGroupLength = matchResult[0].length; // '(src="..." name="...")'.length
         const paramsStr = matchResult[1]; // 'src="..." name="..."'
 
-        // find pairs of key="foo" or key='bar'
-        const params = paramsStr.match(/\w+=(?:"[^"]+"|'[^']+')/g);
-        if (!params) {
-            return false;
-        }
-
         const attrsObj: Record<string, string> = {};
-        params.forEach((param) => {
-            const indexKey = param.indexOf('=');
-            const key = param.slice(0, indexKey);
-            const value = param.slice(indexKey + 2, -1);
-            if (KNOWN_ATTRS.includes(key) && value) {
-                attrsObj[key] = value;
+        let nameStart = 0;
+
+        for (const match of paramsStr.matchAll(/(\w+)=(?:"([^"]+)"|'([^']+)')/g)) {
+            const [, key, doubleQuoted, singleQuoted] = match;
+            if (KNOWN_ATTRS.includes(key)) {
+                attrsObj[key] = doubleQuoted ?? singleQuoted;
             }
-        });
+
+            if (key === FileSpecialAttr.Name) {
+                // The key, equals sign and opening quote precede the value.
+                nameStart = state.pos + PREFIX_LENGTH + match.index + key.length + 2;
+            }
+        }
 
         const hasAllRequiredAttrs = REQUIRED_ATTRS.every((attr) => attr in attrsObj);
         if (!hasAllRequiredAttrs) {
             return false;
         }
 
+        const end = state.pos + PREFIX_LENGTH + paramsGroupLength;
+
         if (!silent) {
             const token = state.push(FILE_TOKEN, '', 0);
             token.block = false;
             token.markup = PREFIX;
             token.content = attrsObj[FileSpecialAttr.Name];
+            token.meta = {
+                fileMarkup: {
+                    beforeName: state.src.slice(state.pos, nameStart),
+                    afterName: state.src.slice(nameStart + token.content.length, end),
+                },
+            };
             token.attrs = Object.entries(attrsObj);
             token.attrSet('class', FileClassName.Link);
 
@@ -76,7 +83,7 @@ export const filePlugin: markdownit.PluginWithOptions<FileOptions> = (md, opts) 
             }
         }
 
-        state.pos = state.pos + PREFIX_LENGTH + paramsGroupLength;
+        state.pos = end;
 
         state.env ??= {};
         state.env[ENV_FLAG_NAME] = true;
