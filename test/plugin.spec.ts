@@ -170,6 +170,50 @@ describe('File extension - plugin', () => {
         expect(tokens('{% file src="../file" name="file.txt" %}')).toMatchSnapshot();
     });
 
+    it.each([
+        {
+            scenario: 'the filename with a Liquid variable also occurs in src',
+            files: [
+                {
+                    beforeName:
+                        '{% file src="../../_assets/instructions/economy-developer-{{locale}}.txt" name="',
+                    name: 'economy-developer-{{locale}}.txt',
+                    afterName: '" type="text/plain; charset=utf-8" %}',
+                },
+            ],
+        },
+        {
+            scenario: 'a single-quoted name precedes src',
+            files: [
+                {
+                    beforeName: "{% file   name='",
+                    name: 'manual-{{ locale }}.pdf',
+                    afterName: "'   src='manual.pdf'  %}",
+                },
+            ],
+        },
+        {
+            scenario: 'two files occur in the same paragraph',
+            files: [
+                {beforeName: '{% file src="a.txt" name="', name: 'first.txt', afterName: '" %}'},
+                {beforeName: "{% file name='", name: 'second.txt', afterName: "' src='b.txt' %}"},
+            ],
+        },
+    ])('preserves the name boundaries when $scenario', ({files}) => {
+        const markup = files.map(({beforeName, name, afterName}) => beforeName + name + afterName);
+        const paragraph = `Download: ${markup.join(' or ')}.`;
+        const fileTokens = tokens(paragraph)[1].children?.filter(
+            (token) => token.type === 'yfm_file',
+        );
+
+        expect(fileTokens).toMatchObject(
+            files.map(({beforeName, name, afterName}) => ({
+                content: name,
+                meta: {fileMarkup: {beforeName, afterName}},
+            })),
+        );
+    });
+
     it('should add extra attrs by passing them to plugin options', () => {
         const md = new MarkdownIt();
         const filePlugin = fileTransformer({bundle: false});
