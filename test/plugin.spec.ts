@@ -115,6 +115,11 @@ describe('File extension - plugin', () => {
         ).toMatchSnapshot();
     });
 
+    it('should reject malformed text between valid attributes', () => {
+        const markup = `{% file src='guide.txt' invalid name='guide.txt' %}`;
+        expect(tokens(markup)[1].children?.map((token) => token.type)).toEqual(['text']);
+    });
+
     it('should not render file without spaces around attrs', () => {
         expect(html('{% file src="index.txt"name="index.html"type="text/html" %}')).toBe(
             `<p>{% file src=&quot;index.txt&quot;name=&quot;index.html&quot;type=&quot;text/html&quot; %}</p>\n`,
