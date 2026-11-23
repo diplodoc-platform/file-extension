@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.8](https://github.com/diplodoc-platform/file-extension/compare/v0.2.7...v0.2.8) (2026-11-23)
+
+
+### Bug Fixes
+
+* expose source markup around file names ([638ad5f](https://github.com/diplodoc-platform/file-extension/commit/638ad5fd6cf6e1e7904ddf53173214a7261611f2))
+* parse file attributes sequentially ([70888af](https://github.com/diplodoc-platform/file-extension/commit/70888af692d88cc7afbe8f8e2cf292bf15f15390))
+* use a sticky matcher for consecutive attributes ([d8485d7](https://github.com/diplodoc-platform/file-extension/commit/d8485d7687b988ec5191b62286e89550d685423c))
+
 ## [0.2.7](https://github.com/diplodoc-platform/file-extension/compare/v0.2.6...v0.2.7) (2026-10-28)
 
 
