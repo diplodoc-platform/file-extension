@@ -16,6 +16,35 @@ export type FileOptions = {
     fileExtraAttrs?: [string, string][];
 };
 
+function parseAttributes(source: string, start: number) {
+    const attrs: Record<string, string> = {};
+    const attribute = /\s*(\w+)=(?:"([^"]+)"|'([^']+)')\s/gy;
+    attribute.lastIndex = start;
+
+    let nameStart = 0;
+    let end = start;
+    for (const match of source.matchAll(attribute)) {
+        const [raw, key, doubleQuoted, singleQuoted] = match;
+        end = match.index + raw.length;
+
+        if (KNOWN_ATTRS.includes(key)) {
+            attrs[key] = doubleQuoted ?? singleQuoted;
+        }
+
+        if (key === FileSpecialAttr.Name) {
+            // Skip the equals sign and opening quote.
+            nameStart = match.index + raw.indexOf('=') + 2;
+        }
+    }
+
+    const closing = /^\s*%}/.exec(source.slice(end));
+    if (!closing || !REQUIRED_ATTRS.every((key) => key in attrs)) {
+        return;
+    }
+
+    return {attrs, nameStart, end: end + closing[0].length};
+}
+
 export const filePlugin: markdownit.PluginWithOptions<FileOptions> = (md, opts) => {
     fileRenderer(md);
 
@@ -24,51 +53,25 @@ export const filePlugin: markdownit.PluginWithOptions<FileOptions> = (md, opts) 
             return false;
         }
 
-        // the rest of line after '{% file '
-        const searchStr = state.src.slice(state.pos + PREFIX_LENGTH, state.posMax);
-        // loking for pattern 'src="..." name="..." etc="value" %}'
-        const matchResult = searchStr.match(/^((?:\s*\w+=(?:"[^"]+"|'[^']+')\s)+)\s*%}/);
-        if (!matchResult) {
+        const parsed = parseAttributes(state.src.slice(0, state.posMax), state.pos + PREFIX_LENGTH);
+        if (!parsed) {
             return false;
         }
 
-        const paramsGroupLength = matchResult[0].length; // '(src="..." name="...")'.length
-        const paramsStr = matchResult[1]; // 'src="..." name="..."'
-
-        const attrsObj: Record<string, string> = {};
-        let nameStart = 0;
-
-        for (const match of paramsStr.matchAll(/(\w+)=(?:"([^"]+)"|'([^']+)')/g)) {
-            const [, key, doubleQuoted, singleQuoted] = match;
-            if (KNOWN_ATTRS.includes(key)) {
-                attrsObj[key] = doubleQuoted ?? singleQuoted;
-            }
-
-            if (key === FileSpecialAttr.Name) {
-                // The key, equals sign and opening quote precede the value.
-                nameStart = state.pos + PREFIX_LENGTH + match.index + key.length + 2;
-            }
-        }
-
-        const hasAllRequiredAttrs = REQUIRED_ATTRS.every((attr) => attr in attrsObj);
-        if (!hasAllRequiredAttrs) {
-            return false;
-        }
-
-        const end = state.pos + PREFIX_LENGTH + paramsGroupLength;
+        const {attrs, nameStart, end} = parsed;
 
         if (!silent) {
             const token = state.push(FILE_TOKEN, '', 0);
             token.block = false;
             token.markup = PREFIX;
-            token.content = attrsObj[FileSpecialAttr.Name];
+            token.content = attrs[FileSpecialAttr.Name];
             token.meta = {
                 fileMarkup: {
                     beforeName: state.src.slice(state.pos, nameStart),
                     afterName: state.src.slice(nameStart + token.content.length, end),
                 },
             };
-            token.attrs = Object.entries(attrsObj);
+            token.attrs = Object.entries(attrs);
             token.attrSet('class', FileClassName.Link);
 
             for (const attr of token.attrs) {
