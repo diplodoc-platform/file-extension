@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.0.0](https://github.com/diplodoc-platform/file-extension/compare/v0.2.8...v1.0.0) (2026-11-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* **file:** File uses Directive 1 and TypeScript 5.3 or newer for public parser declarations.
+
+### Features
+
+* **file:** support the Transform 5 parser graph ([6db803f](https://github.com/diplodoc-platform/file-extension/commit/6db803faf8202f91130d1b70bbdfc5e91d00932d))
+
+
+### Bug Fixes
+
+* **file:** align the parser peer with Directive 1 ([e5af319](https://github.com/diplodoc-platform/file-extension/commit/e5af319f10a6777f283a46a9034df619d64b71ea))
+
 ## [0.2.8](https://github.com/diplodoc-platform/file-extension/compare/v0.2.7...v0.2.8) (2026-11-23)
 
 
