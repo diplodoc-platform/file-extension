@@ -60,7 +60,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@diplodoc/directive": "^1.0.0-beta.4"
+    "@diplodoc/directive": "^1.0.0"
   },
   "peerDependencies": {
     "markdown-it": "^15.0.3"
