@@ -114,7 +114,7 @@ Options:
 
 > _Note: other attributes will be ignored_
 
-If a supported attribute is repeated, its values are serialized as a comma-separated string. Prefer a single value per attribute.
+If a supported attribute is repeated, its last value is used.
 
 The plugin returned by `transform()` also exposes `collect(input, {destRoot})`. It parses the supplied source and, when bundling is enabled and a file is recognized, copies the runtime stylesheet under `destRoot`. Both arguments and the string `destRoot` are required by the public TypeScript API. The callable plugin and its collection options are exported as `FileTransformPlugin` and `FileCollectOptions` types.
 
@@ -179,10 +179,10 @@ MIT
 
 ## MarkdownIt compatibility
 
-The plugin supports MarkdownIt 13 and 15. Its types derive from the public parser
-constructor, so consumers use the declarations of their installed parser.
+The plugin requires Markdown-it 15.0.3 or later within major version 15. It uses
+the declarations of the installed parser.
 
 TypeScript consumers require TypeScript 5.3 or newer for import resolution
-attributes; the strict installed-package matrix was tested with TypeScript 6.0.3.
-For MarkdownIt 15, native CommonJS declarations use an explicit import-mode type
-query to avoid the upstream 15.0.3 CommonJS declaration shim issue.
+attributes. The installed package is checked with TypeScript 6.0.3 in strict
+mode. CommonJS consumers use an explicit import-mode type query to avoid the
+upstream 15.0.3 CommonJS declaration shim issue.

@@ -51,139 +51,123 @@ try {
     const archive = join(evidence, pack.filename);
     if (pack.integrity !== `sha512-${hash(readFileSync(archive))}`)
         throw new Error('Archive integrity mismatch');
-    for (const version of ['13.0.2', '15.0.3']) {
-        const dir = join(tmp, version);
-        mkdirSync(dir);
-        copyFileSync(archive, join(dir, pack.filename));
-        for (const name of [
+    const version = '15.0.3';
+    const dir = join(tmp, version);
+    mkdirSync(dir);
+    copyFileSync(archive, join(dir, pack.filename));
+    for (const name of ['native.mts', 'native.cts', 'reexport.cts', 'reexport.mts', 'runtime.cjs'])
+        copyFileSync(join(root, 'test/compat', `${name}.template`), join(dir, name));
+    const dependencies = {
+        '@diplodoc/file-extension': `file:./${pack.filename}`,
+        '@types/node': '24.10.0',
+        'markdown-it': version,
+        typescript: '6.0.3',
+    };
+    const manifest = {private: true, type: 'module', dependencies};
+    writeFileSync(join(dir, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    run(process.execPath, [npm, 'install', '--strict-peer-deps'], dir, `${version}-install`);
+    run(process.execPath, [npm, 'ci', '--strict-peer-deps'], dir, `${version}-ci`);
+    const lock = JSON.parse(readFileSync(join(dir, 'package-lock.json'), 'utf8'));
+    const resolvedParsers = Object.keys(lock.packages).filter((path) =>
+        path.endsWith('/markdown-it'),
+    );
+    if (
+        resolvedParsers.length !== 1 ||
+        lock.packages['node_modules/markdown-it']?.version !== version
+    )
+        throw new Error('Expected one shared Markdown-it 15 host');
+    if (lock.packages['node_modules/@diplodoc/file-extension'].integrity !== pack.integrity)
+        throw new Error('Lock integrity mismatch');
+    const directive = lock.packages[directivePath];
+    if (
+        directive?.version !== expectedDirective.version ||
+        directive.integrity !== expectedDirective.integrity
+    )
+        throw new Error('Installed Directive differs from the source lockfile');
+    const extracted = join(dir, 'extracted');
+    mkdirSync(extracted);
+    run('tar', ['-xzf', archive, '-C', extracted], dir, `${version}-extract`);
+    const packed = join(extracted, 'package'),
+        installed = join(dir, 'node_modules/@diplodoc/file-extension');
+    const a = files(packed).sort(),
+        b = files(installed).sort();
+    if (
+        JSON.stringify(a) !== JSON.stringify(b) ||
+        a.some(
+            (name) =>
+                hash(readFileSync(join(packed, name))) !==
+                hash(readFileSync(join(installed, name))),
+        )
+    )
+        throw new Error('Installed bytes mismatch');
+    const config = {
+        compilerOptions: {
+            target: 'ES2022',
+            module: 'NodeNext',
+            moduleResolution: 'NodeNext',
+            strict: true,
+            skipLibCheck: false,
+            noEmit: true,
+            types: ['node'],
+        },
+        include: [
             'native.mts',
             'native.cts',
             'reexport.cts',
             'reexport.mts',
-            'runtime.cjs',
-        ])
-            copyFileSync(join(root, 'test/compat', `${name}.template`), join(dir, name));
-        if (version === '13.0.2') {
-            for (const name of ['mixed.mts', 'mixed.cts'])
-                copyFileSync(join(root, 'test/compat', `${name}.template`), join(dir, name));
-        }
-        const dependencies = {
-            '@diplodoc/file-extension': `file:./${pack.filename}`,
-            '@types/node': '24.10.0',
-            'markdown-it': version,
-            typescript: '6.0.3',
-        };
-        if (version === '13.0.2') {
-            dependencies['@types/markdown-it'] = '13.0.9';
-            dependencies['markdown-it-15'] = 'npm:markdown-it@15.0.3';
-        }
-        const manifest = {
-            private: true,
-            type: 'module',
-            ...(version === '13.0.2' ? {overrides: {'markdown-it': {'linkify-it': '5.0.2'}}} : {}),
-            dependencies,
-        };
-        writeFileSync(join(dir, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-        run(process.execPath, [npm, 'install'], dir, `${version}-install`);
-        run(process.execPath, [npm, 'ci'], dir, `${version}-ci`);
-        const lock = JSON.parse(readFileSync(join(dir, 'package-lock.json'), 'utf8'));
-        if (lock.packages['node_modules/@diplodoc/file-extension'].integrity !== pack.integrity)
-            throw new Error('Lock integrity mismatch');
-        const directive = lock.packages[directivePath];
-        if (
-            directive?.version !== expectedDirective.version ||
-            directive.integrity !== expectedDirective.integrity
-        )
-            throw new Error('Installed Directive differs from the source lockfile');
-        const extracted = join(dir, 'extracted');
-        mkdirSync(extracted);
-        run('tar', ['-xzf', archive, '-C', extracted], dir, `${version}-extract`);
-        const packed = join(extracted, 'package'),
-            installed = join(dir, 'node_modules/@diplodoc/file-extension');
-        const a = files(packed).sort(),
-            b = files(installed).sort();
-        if (
-            JSON.stringify(a) !== JSON.stringify(b) ||
-            a.some(
-                (name) =>
-                    hash(readFileSync(join(packed, name))) !==
-                    hash(readFileSync(join(installed, name))),
-            )
-        )
-            throw new Error('Installed bytes mismatch');
-        const config = {
-            compilerOptions: {
-                target: 'ES2022',
-                module: 'NodeNext',
-                moduleResolution: 'NodeNext',
-                strict: true,
-                skipLibCheck: false,
-                noEmit: true,
-                types: ['node'],
-            },
-            include: [
-                'native.mts',
-                'native.cts',
-                'reexport.cts',
-                'reexport.mts',
-                'node_modules/@diplodoc/file-extension/build/**/*.d.ts',
-            ],
-        };
-        if (version === '13.0.2') config.include.push('mixed.mts', 'mixed.cts');
-        writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify(config, null, 2));
-        const tsc = join(dir, 'node_modules/typescript/bin/tsc');
-        run(process.execPath, [tsc, '-p', 'tsconfig.json'], dir, `${version}-all-dts`);
-        run(
-            process.execPath,
-            [
-                tsc,
-                '--ignoreConfig',
-                '--strict',
-                '--skipLibCheck',
-                'false',
-                '--module',
-                'NodeNext',
-                '--moduleResolution',
-                'NodeNext',
-                '--target',
-                'ES2022',
-                '--declaration',
-                '--emitDeclarationOnly',
-                '--outDir',
-                'declarations',
-                'reexport.cts',
-                'reexport.mts',
-            ],
-            dir,
-            `${version}-reexport`,
-        );
-        for (const ext of ['cts', 'mts']) {
-            const reexport = readFileSync(join(dir, `declarations/reexport.d.${ext}`), 'utf8');
-            if (!reexport.includes('@diplodoc/file-extension') || reexport.includes('/build/'))
-                throw new Error('Nonportable reexport');
-            copyFileSync(
-                join(dir, `declarations/reexport.d.${ext}`),
-                join(evidence, `${version}-reexport.d.${ext}`),
-            );
-        }
-        run(process.execPath, ['runtime.cjs'], dir, `${version}-runtime`);
-        run(
-            process.execPath,
-            [
-                '--input-type=module',
-                '-e',
-                "import * as runtime from '@diplodoc/file-extension/runtime'; if (Object.keys(runtime.default).length || Object.keys(runtime).some((key) => key !== 'default' && key !== 'module.exports')) throw Error('unexpected CJS runtime namespace');",
-            ],
-            dir,
-            `${version}-runtime-esm`,
-        );
-        copyFileSync(join(dir, 'package.json'), join(evidence, `${version}-package.json`));
+            'node_modules/@diplodoc/file-extension/build/**/*.d.ts',
+        ],
+    };
+    writeFileSync(join(dir, 'tsconfig.json'), JSON.stringify(config, null, 2));
+    const tsc = join(dir, 'node_modules/typescript/bin/tsc');
+    run(process.execPath, [tsc, '-p', 'tsconfig.json'], dir, `${version}-all-dts`);
+    run(
+        process.execPath,
+        [
+            tsc,
+            '--ignoreConfig',
+            '--strict',
+            '--skipLibCheck',
+            'false',
+            '--module',
+            'NodeNext',
+            '--moduleResolution',
+            'NodeNext',
+            '--target',
+            'ES2022',
+            '--declaration',
+            '--emitDeclarationOnly',
+            '--outDir',
+            'declarations',
+            'reexport.cts',
+            'reexport.mts',
+        ],
+        dir,
+        `${version}-reexport`,
+    );
+    for (const ext of ['cts', 'mts']) {
+        const reexport = readFileSync(join(dir, `declarations/reexport.d.${ext}`), 'utf8');
+        if (!reexport.includes('@diplodoc/file-extension') || reexport.includes('/build/'))
+            throw new Error('Nonportable reexport');
         copyFileSync(
-            join(dir, 'package-lock.json'),
-            join(evidence, `${version}-package-lock.json`),
+            join(dir, `declarations/reexport.d.${ext}`),
+            join(evidence, `${version}-reexport.d.${ext}`),
         );
-        report.fixtures.push({version, files: a.length, allDts: true, runtime: true});
     }
+    run(process.execPath, ['runtime.cjs'], dir, `${version}-runtime`);
+    run(
+        process.execPath,
+        [
+            '--input-type=module',
+            '-e',
+            "import * as runtime from '@diplodoc/file-extension/runtime'; if (Object.keys(runtime.default).length || Object.keys(runtime).some((key) => key !== 'default' && key !== 'module.exports')) throw Error('unexpected CJS runtime namespace');",
+        ],
+        dir,
+        `${version}-runtime-esm`,
+    );
+    copyFileSync(join(dir, 'package.json'), join(evidence, `${version}-package.json`));
+    copyFileSync(join(dir, 'package-lock.json'), join(evidence, `${version}-package-lock.json`));
+    report.fixtures.push({version, files: a.length, allDts: true, runtime: true});
     report.integrity = pack.integrity;
     report.archive = pack.filename;
     report.sha256 = createHash('sha256').update(readFileSync(archive)).digest('hex');
