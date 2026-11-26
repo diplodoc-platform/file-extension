@@ -10,6 +10,7 @@ export type FileToken = {
     content: string;
     markup: string;
     block: boolean;
+    meta?: unknown;
     get attrs(): [string, string | number][] | null;
     set attrs(value: [string, string][] | null);
     children: readonly {type: string}[] | null;

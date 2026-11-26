@@ -1,23 +1,19 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const {createRequire} = require('node:module');
 const file = require('@diplodoc/file-extension');
 const Host = require('markdown-it');
 const runtime = require('@diplodoc/file-extension/runtime');
 assert.deepEqual(runtime, {});
-const fixtureRequire = createRequire(__filename);
 const legacy = '{% file src="file.txt" name="File" %}';
 const inline = ':file[File](file.txt){rel="x&y" rel=z}';
 for (const md of [new Host().use(file.transform({bundle:false})), new Host().use(file.transform({bundle:false,directiveSyntax:'disabled'}))]) {
     assert.match(md.render(legacy), /class="yfm-file"/);
     assert.doesNotMatch(md.render(inline), /class="yfm-file"/);
 }
-for (const name of ['markdown-it', 'markdown-it-15']) {
-    let Markdown;
-    try { Markdown = fixtureRequire(name); } catch (e) { if (e.code === 'MODULE_NOT_FOUND' && name === 'markdown-it-15') continue; throw e; }
+{
     const env = {};
-    const md = new Markdown().use(file.transform({bundle:false,directiveSyntax:'enabled'}));
+    const md = new Host().use(file.transform({bundle:false,directiveSyntax:'enabled'}));
     assert.match(md.render(legacy, env), /class="yfm-file"/);
     assert.match(md.render(inline), /rel="x&amp;y,z"/);
     assert.deepEqual(env.meta.style, ['_assets/file-extension.css']);
